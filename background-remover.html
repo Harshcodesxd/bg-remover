@@ -1,0 +1,542 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Background Remover</title>
+<style>
+  /* ---- RESET ---- */
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+    background: #f5f0e8;
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+
+  /* ---- MAIN CARD ---- */
+  .app {
+    max-width: 1100px;
+    width: 100%;
+    background: #fff;
+    border: 4px solid #222;
+    border-radius: 24px;
+    padding: 30px 30px 40px;
+    box-shadow: 10px 10px 0 #222;
+  }
+
+  h1 {
+    font-size: 2.2rem;
+    font-weight: 800;
+    text-transform: uppercase;
+    letter-spacing: -0.5px;
+    color: #222;
+    margin-bottom: 6px;
+  }
+
+  .subtitle {
+    font-size: 0.95rem;
+    color: #666;
+    margin-bottom: 24px;
+  }
+
+  /* ---- UPLOAD ZONE ---- */
+  .upload-zone {
+    border: 4px dashed #aaa;
+    border-radius: 16px;
+    padding: 50px 20px;
+    text-align: center;
+    cursor: pointer;
+    background: #fafafa;
+    transition: border-color 0.2s, background 0.2s;
+    margin-bottom: 28px;
+  }
+  .upload-zone:hover,
+  .upload-zone.dragover {
+    border-color: #222;
+    background: #f0f0f0;
+  }
+  .upload-zone p {
+    font-size: 1.15rem;
+    font-weight: 600;
+    color: #444;
+  }
+  .upload-zone small {
+    display: block;
+    margin-top: 6px;
+    color: #888;
+  }
+
+  /* ---- CONTROLS ---- */
+  .controls {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 14px 20px;
+    margin-bottom: 24px;
+    padding: 16px 18px;
+    background: #f8f6f2;
+    border: 3px solid #222;
+    border-radius: 14px;
+  }
+
+  .control-group {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+  }
+  .control-group label {
+    font-weight: 700;
+    font-size: 0.9rem;
+    color: #333;
+    white-space: nowrap;
+  }
+
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 18px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    border: 3px solid #222;
+    border-radius: 10px;
+    cursor: pointer;
+    background: #fff;
+    color: #222;
+    text-transform: uppercase;
+    transition: 0.1s ease;
+    box-shadow: 4px 4px 0 #222;
+    user-select: none;
+  }
+  .btn:active {
+    transform: translate(3px, 3px);
+    box-shadow: 1px 1px 0 #222;
+  }
+  .btn-primary { background: #ffde5c; }
+  .btn-danger  { background: #ff6b6b; color: #fff; }
+  .btn-outline { background: #fff; }
+
+  .btn:disabled {
+    opacity: 0.4;
+    pointer-events: none;
+    filter: grayscale(0.7);
+  }
+
+  input[type="range"] {
+    width: 120px;
+    accent-color: #222;
+  }
+  .tolerance-value {
+    display: inline-block;
+    min-width: 26px;
+    font-weight: 800;
+    font-size: 0.95rem;
+  }
+  input[type="color"] {
+    width: 40px;
+    height: 34px;
+    border: 3px solid #222;
+    border-radius: 8px;
+    padding: 2px;
+    cursor: pointer;
+    background: #fff;
+  }
+
+  .selected-color-indicator {
+    width: 28px;
+    height: 28px;
+    border: 2px solid #222;
+    border-radius: 6px;
+    flex-shrink: 0;
+  }
+
+  .mode-toggle {
+    display: flex;
+    gap: 0;
+    border: 3px solid #222;
+    border-radius: 10px;
+    overflow: hidden;
+  }
+  .mode-toggle button {
+    padding: 7px 16px;
+    font-weight: 700;
+    font-size: 0.8rem;
+    border: none;
+    cursor: pointer;
+    background: #e0ddd6;
+    color: #555;
+    text-transform: uppercase;
+    transition: 0.1s;
+  }
+  .mode-toggle button.active {
+    background: #222;
+    color: #fff;
+  }
+
+  /* ---- CANVAS AREA ---- */
+  .canvas-area {
+    display: flex;
+    gap: 24px;
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+  .canvas-box {
+    flex: 1 1 280px;
+    min-width: 0;
+  }
+  .canvas-box h3 {
+    font-size: 0.85rem;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 6px;
+    color: #555;
+  }
+  .canvas-wrapper {
+    border: 3px solid #222;
+    border-radius: 12px;
+    overflow: hidden;
+    background: repeating-conic-gradient(#ccc 0% 25%, #fff 0% 50%) 0 0 / 16px 16px;
+    position: relative;
+    cursor: crosshair;
+  }
+  .canvas-wrapper canvas {
+    display: block;
+    width: 100%;
+    height: auto;
+    max-height: 480px;
+    object-fit: contain;
+  }
+
+  .canvas-hint {
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: rgba(0,0,0,0.72);
+    color: #fff;
+    font-size: 0.75rem;
+    padding: 4px 12px;
+    border-radius: 6px;
+    pointer-events: none;
+    white-space: nowrap;
+  }
+
+  /* ---- STATUS ---- */
+  .status {
+    margin-top: 18px;
+    font-size: 0.9rem;
+    color: #444;
+    font-weight: 600;
+    min-height: 1.4em;
+  }
+
+  /* ---- RESPONSIVE ---- */
+  @media (max-width: 700px) {
+    .app { padding: 16px; }
+    .controls { flex-direction: column; align-items: stretch; gap: 10px; }
+    .control-group { flex-wrap: wrap; }
+    .canvas-area { flex-direction: column; }
+  }
+</style>
+</head>
+<body>
+
+<div class="app">
+  <h1>&#9670; Background Remover</h1>
+  <p class="subtitle">Click the background color you want to remove &mdash; tolerance slider for fine control</p>
+
+  <!-- Upload -->
+  <div class="upload-zone" id="uploadZone">
+    <p>Drop an image here or click to upload</p>
+    <small>Supports PNG, JPG, WEBP &mdash; works best with solid backgrounds</small>
+    <input type="file" accept="image/*" id="fileInput" style="display:none" />
+  </div>
+
+  <!-- Controls -->
+  <div class="controls" id="controls">
+    <div class="control-group">
+      <label>Mode</label>
+      <div class="mode-toggle">
+        <button class="active" data-mode="remove">Remove</button>
+        <button data-mode="fill">Fill</button>
+      </div>
+    </div>
+
+    <div class="control-group">
+      <label>Tolerance</label>
+      <input type="range" id="toleranceSlider" min="0" max="100" value="30" />
+      <span class="tolerance-value" id="toleranceValue">30</span>
+    </div>
+
+    <div class="control-group">
+      <label>Fill Color</label>
+      <input type="color" id="fillColor" value="#ffffff" />
+    </div>
+
+    <div class="control-group">
+      <label>Sampled</label>
+      <div class="selected-color-indicator" id="colorIndicator" style="background:#888"></div>
+    </div>
+
+    <button class="btn btn-primary" id="applyBtn">&#10003; Apply</button>
+    <button class="btn btn-danger" id="resetBtn">&#8634; Reset</button>
+    <button class="btn btn-outline" id="downloadBtn" disabled>&#8600; Download PNG</button>
+  </div>
+
+  <!-- Canvases -->
+  <div class="canvas-area">
+    <div class="canvas-box">
+      <h3>Original (click to sample)</h3>
+      <div class="canvas-wrapper">
+        <canvas id="sourceCanvas"></canvas>
+        <span class="canvas-hint">&#9758; Click background color</span>
+      </div>
+    </div>
+    <div class="canvas-box">
+      <h3>Result</h3>
+      <div class="canvas-wrapper">
+        <canvas id="resultCanvas"></canvas>
+      </div>
+    </div>
+  </div>
+
+  <div class="status" id="status">Load an image to get started.</div>
+</div>
+
+<script>
+(function () {
+  "use strict";
+
+  // ---- DOM refs ----
+  const uploadZone    = document.getElementById("uploadZone");
+  const fileInput     = document.getElementById("fileInput");
+  const sourceCanvas  = document.getElementById("sourceCanvas");
+  const resultCanvas  = document.getElementById("resultCanvas");
+  const ctxSrc        = sourceCanvas.getContext("2d");
+  const ctxRes        = resultCanvas.getContext("2d");
+  const toleranceSlider = document.getElementById("toleranceSlider");
+  const toleranceValue  = document.getElementById("toleranceValue");
+  const colorIndicator  = document.getElementById("colorIndicator");
+  const fillColorInput  = document.getElementById("fillColor");
+  const applyBtn     = document.getElementById("applyBtn");
+  const resetBtn     = document.getElementById("resetBtn");
+  const downloadBtn  = document.getElementById("downloadBtn");
+  const statusEl     = document.getElementById("status");
+  const modeBtns     = document.querySelectorAll(".mode-toggle button");
+
+  // ---- State ----
+  let originalImageData = null;      // ImageData of full-res source canvas
+  let currentResultData  = null;     // processed ImageData (for download)
+  let sampledColor   = null;         // [r, g, b]
+  let tolerance      = 30;
+  let currentMode    = "remove";     // "remove" | "fill"
+  let imageLoaded    = false;
+  let pendingSample  = false;        // true after "Apply" so next click re-samples
+
+  // ---- Dimensions ----
+  let displayW = 600;  // logical canvas size
+  let displayH = 400;
+
+  // ---- Image loading ----
+  function loadImage(file) {
+    const reader = new FileReader();
+    reader.onload = function (e) {
+      const img = new Image();
+      img.onload = function () {
+
+        // Set display dimensions (cap to keep usable)
+        displayW = Math.min(img.naturalWidth, 900);
+        displayH = Math.min(img.naturalHeight, 600);
+        // Maintain aspect ratio
+        const aspect = img.naturalWidth / img.naturalHeight;
+        if (displayW / displayH > aspect) {
+          displayW = displayH * aspect;
+        } else {
+          displayH = displayW / aspect;
+        }
+        displayW = Math.round(displayW);
+        displayH = Math.round(displayH);
+
+        sourceCanvas.width  = displayW;
+        sourceCanvas.height = displayH;
+        resultCanvas.width  = displayW;
+        resultCanvas.height = displayH;
+
+        // Draw original at display size
+        ctxSrc.drawImage(img, 0, 0, displayW, displayH);
+        originalImageData = ctxSrc.getImageData(0, 0, displayW, displayH);
+
+        // Reset result
+        ctxRes.putImageData(new ImageData(new Uint8ClampedArray(originalImageData.data), displayW, displayH), 0, 0);
+        currentResultData = ctxRes.getImageData(0, 0, displayW, displayH);
+
+        imageLoaded = true;
+        sampledColor = null;
+        colorIndicator.style.background = "#888";
+        pendingSample = false;
+        downloadBtn.disabled = true;
+        statusEl.textContent = "Click on the background color in the original image to sample it, then click Apply.";
+        setStatus("info");
+      };
+      img.src = e.target.result;
+    };
+    reader.readAsDataURL(file);
+  }
+
+  // ---- Upload handlers ----
+  uploadZone.addEventListener("click", () => fileInput.click());
+  fileInput.addEventListener("change", (e) => {
+    if (e.target.files[0]) loadImage(e.target.files[0]);
+  });
+
+  uploadZone.addEventListener("dragover", (e) => {
+    e.preventDefault();
+    uploadZone.classList.add("dragover");
+  });
+  uploadZone.addEventListener("dragleave", () => {
+    uploadZone.classList.remove("dragover");
+  });
+  uploadZone.addEventListener("drop", (e) => {
+    e.preventDefault();
+    uploadZone.classList.remove("dragover");
+    if (e.dataTransfer.files[0]) loadImage(e.dataTransfer.files[0]);
+  });
+
+  // ---- Click to sample color on source canvas ----
+  sourceCanvas.addEventListener("click", (e) => {
+    if (!imageLoaded) return;
+    const rect = sourceCanvas.getBoundingClientRect();
+    const scaleX = sourceCanvas.width  / rect.width;
+    const scaleY = sourceCanvas.height / rect.height;
+    const mx = Math.floor((e.clientX - rect.left) * scaleX);
+    const my = Math.floor((e.clientY - rect.top) * scaleY);
+    if (mx < 0 || my < 0 || mx >= sourceCanvas.width || my >= sourceCanvas.height) return;
+
+    const data = originalImageData.data;
+    const idx  = (my * sourceCanvas.width + mx) * 4;
+    sampledColor = [data[idx], data[idx + 1], data[idx + 2]];
+    colorIndicator.style.background = `rgb(${sampledColor[0]},${sampledColor[1]},${sampledColor[2]})`;
+    pendingSample = true;
+    statusEl.textContent = `Sampled color: rgb(${sampledColor[0]},${sampledColor[1]},${sampledColor[2]}). Adjust tolerance and click Apply.`;
+    setStatus("info");
+    downloadBtn.disabled = true;
+  });
+
+  // ---- Tolerance ----
+  toleranceSlider.addEventListener("input", () => {
+    tolerance = parseInt(toleranceSlider.value, 10);
+    toleranceValue.textContent = tolerance;
+  });
+
+  // ---- Mode toggle ----
+  modeBtns.forEach((btn) => {
+    btn.addEventListener("click", () => {
+      modeBtns.forEach((b) => b.classList.remove("active"));
+      btn.classList.add("active");
+      currentMode = btn.dataset.mode;
+      // Re-apply if we have a sample
+      if (imageLoaded && sampledColor && pendingSample) {
+        processImage();
+      }
+    });
+  });
+
+  // ---- Apply ----
+  applyBtn.addEventListener("click", () => {
+    if (!imageLoaded) { setStatus("Load an image first.", "warn"); return; }
+    if (!sampledColor) { setStatus("Click a background color on the original image first.", "warn"); return; }
+    processImage();
+  });
+
+  // ---- Core processing ----
+  function processImage() {
+    const w = sourceCanvas.width;
+    const h = sourceCanvas.height;
+    const srcData = originalImageData.data;
+    const outData = new Uint8ClampedArray(srcData);  // copy
+
+    const [sr, sg, sb] = sampledColor;
+    const tol = tolerance;
+    const fillR = parseInt(fillColorInput.value.slice(1,3), 16);
+    const fillG = parseInt(fillColorInput.value.slice(3,5), 16);
+    const fillB = parseInt(fillColorInput.value.slice(5,7), 16);
+
+    for (let y = 0; y < h; y++) {
+      for (let x = 0; x < w; x++) {
+        const idx = (y * w + x) * 4;
+        const pr = outData[idx];
+        const pg = outData[idx + 1];
+        const pb = outData[idx + 2];
+
+        const dr = pr - sr;
+        const dg = pg - sg;
+        const db = pb - sb;
+        const dist = Math.sqrt(dr * dr + dg * dg + db * db);
+
+        if (dist <= tol) {
+          if (currentMode === "remove") {
+            // Make transparent
+            outData[idx + 3] = 0;
+          } else {
+            // Fill with chosen color
+            outData[idx]     = fillR;
+            outData[idx + 1] = fillG;
+            outData[idx + 2] = fillB;
+          }
+        }
+      }
+    }
+
+    const imageData = new ImageData(outData, w, h);
+    ctxRes.putImageData(imageData, 0, 0);
+    currentResultData = imageData;
+    pendingSample = true;
+    downloadBtn.disabled = false;
+    setStatus(`Done. ${currentMode === "remove" ? "Background removed" : "Background filled"}. Click Download PNG to save.`);
+  }
+
+  // ---- Reset ----
+  resetBtn.addEventListener("click", () => {
+    if (!originalImageData) return;
+    ctxRes.putImageData(new ImageData(new Uint8ClampedArray(originalImageData.data), displayW, displayH), 0, 0);
+    currentResultData = ctxRes.getImageData(0, 0, displayW, displayH);
+    sampledColor = null;
+    colorIndicator.style.background = "#888";
+    pendingSample = false;
+    downloadBtn.disabled = true;
+    setStatus("Reset. Click a color on the original to start again.");
+  });
+
+  // ---- Download ----
+  downloadBtn.addEventListener("click", () => {
+    if (!currentResultData) return;
+    resultCanvas.toBlob((blob) => {
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = "removed-background.png";
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
+      setStatus("Downloaded as removed-background.png");
+    }, "image/png");
+  });
+
+  // ---- Status helper ----
+  function setStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.style.color = type === "warn" ? "#b44" : "#444";
+  }
+
+  // ---- Initially disable controls without image ----
+  setStatus("Load an image to get started.");
+})();
+</script>
+</body>
+</html>

@@ -1,0 +1,251 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>RemoveBG — AI Background Remover</title>
+  <meta name="description" content="Remove backgrounds from images instantly — 100% free, runs in your browser, no uploads." />
+  <meta name="theme-color" content="#0a0a0f" />
+  <meta name="color-scheme" content="dark" />
+  <link rel="icon" type="image/svg+xml" href="/favicon.svg" sizes="any" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
+  <script type="module" crossorigin src="/assets/index-B6c_wytl.js"></script>
+  <link rel="stylesheet" crossorigin href="/assets/index-iLt40DHG.css">
+</head>
+<body>
+
+  <a href="#main-content" class="skip-link">Skip to main content</a>
+
+  <canvas id="particles" aria-hidden="true"></canvas>
+
+  <header class="header" role="banner">
+    <div class="header-inner">
+      <a href="/" class="logo" aria-label="RemoveBG Home">
+        <svg width="32" height="32" viewBox="0 0 32 32" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <mask id="logo-mask" style="mask-type:alpha" maskUnits="userSpaceOnUse" x="2" y="2" width="28" height="28">
+            <rect x="2" y="2" width="28" height="28" rx="8" fill="#C4C4C4"/>
+          </mask>
+          <g mask="url(#logo-mask)">
+            <rect x="2" y="2" width="28" height="28" fill="var(--bg-secondary)"/>
+            <rect x="2" y="2" width="7" height="7" fill="var(--border)"/>
+            <rect x="16" y="2" width="7" height="7" fill="var(--border)"/>
+            <rect x="9" y="9" width="7" height="7" fill="var(--border)"/>
+            <rect x="23" y="9" width="7" height="7" fill="var(--border)"/>
+            <rect x="2" y="16" width="7" height="7" fill="var(--border)"/>
+            <rect x="16" y="16" width="7" height="7" fill="var(--border)"/>
+            <rect x="9" y="23" width="7" height="7" fill="var(--border)"/>
+            <rect x="23" y="23" width="7" height="7" fill="var(--border)"/>
+          </g>
+          <rect x="2" y="2" width="28" height="28" rx="8" stroke="var(--accent)" stroke-width="2"/>
+          <path d="M12 20L22 10M22 10H17M22 10V15" stroke="var(--text)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+          <path d="M9 15C9 11.6863 11.6863 9 15 9" stroke="var(--accent)" stroke-width="2.5" stroke-linecap="round"/>
+          <circle cx="9" cy="23" r="2" fill="var(--success)"/>
+        </svg>
+        RemoveBG
+      </a>
+      <nav class="nav" role="navigation" aria-label="Main navigation">
+        <button class="hamburger" id="hamburger" aria-label="Toggle menu" aria-expanded="false" aria-controls="nav-menu">
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+          <span class="hamburger-line"></span>
+        </button>
+        <ul class="nav-menu" id="nav-menu" role="list">
+          <li><a href="#" class="nav-link active" aria-current="page">Home</a></li>
+          <li><a href="#how-it-works" class="nav-link">How It Works</a></li>
+          <li><a href="#features" class="nav-link">Features</a></li>
+        </ul>
+        <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+          <svg class="sun-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="5"></circle>
+            <line x1="12" y1="1" x2="12" y2="3"></line>
+            <line x1="12" y1="21" x2="12" y2="23"></line>
+            <line x1="4.22" y1="4.22" x2="5.64" y2="5.64"></line>
+            <line x1="18.36" y1="18.36" x2="19.78" y2="19.78"></line>
+            <line x1="1" y1="12" x2="3" y2="12"></line>
+            <line x1="21" y1="12" x2="23" y2="12"></line>
+            <line x1="4.22" y1="19.78" x2="5.64" y2="18.36"></line>
+            <line x1="18.36" y1="5.64" x2="19.78" y2="4.22"></line>
+          </svg>
+          <svg class="moon-icon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"></path>
+          </svg>
+        </button>
+      </nav>
+    </div>
+  </header>
+
+  <main id="main-content" class="app">
+
+    <section class="hero">
+      <span class="hero-badge" role="text">AI-Powered &bull; 100% Free</span>
+      <h1 class="hero-title">Remove Background<br class="hero-br" /> Instantly</h1>
+      <p class="hero-sub">Upload any image and get a clean transparent PNG in seconds. No signup, no server uploads, no limits.</p>
+    </section>
+
+    <div class="dropzone" id="dropzone" role="button" tabindex="0" aria-label="Upload an image to remove its background">
+      <div class="dropzone-content" id="dropzoneContent">
+        <div class="dropzone-icon" aria-hidden="true">
+          <svg width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4" />
+            <polyline points="17 8 12 3 7 8" />
+            <line x1="12" y1="3" x2="12" y2="15" />
+          </svg>
+        </div>
+        <p class="dropzone-text"><strong>Drop image here</strong> or click to browse</p>
+        <p class="dropzone-hint">PNG, JPG, WEBP &mdash; up to 50MB</p>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" hidden aria-hidden="true" />
+      <div class="dropzone-loading" id="dropzoneLoading" hidden>
+        <div class="pulse-ring" aria-hidden="true"></div>
+        <div class="spinner" role="status" aria-label="Loading"><span class="sr-only">Loading...</span></div>
+        <p class="dropzone-loading-text" id="loadingText">Loading&hellip;</p>
+        <div class="progress-bar-track" role="progressbar" aria-valuenow="0" aria-valuemin="0" aria-valuemax="100" id="progressBar">
+          <div class="progress-bar-fill" id="progressFill"></div>
+        </div>
+        <p class="dropzone-hint" id="loadingHint">First run downloads the AI model</p>
+      </div>
+    </div>
+
+    <!-- SELECTOR ROW -->
+    <div class="selector-row">
+      <!-- QUALITY SELECTOR — THIS ACTUALLY CONTROLS THE AI MODEL -->
+      <div class="quality-selector" role="group" aria-label="AI model quality">
+        <div class="selector-header">
+          <span class="quality-label">AI Quality</span>
+          <span class="quality-note" id="qualityNote">Highest quality — ~80MB model</span>
+        </div>
+        <div class="btn-group" role="radiogroup" aria-label="AI model quality">
+          <button class="btn btn-small" data-model="isnet_quint8" role="radio" aria-checked="false" tabindex="-1">Fast</button>
+          <button class="btn btn-small" data-model="isnet_fp16" role="radio" aria-checked="false" tabindex="-1">Balanced</button>
+          <button class="btn btn-small active" data-model="isnet" role="radio" aria-checked="true" tabindex="0">Best</button>
+        </div>
+      </div>
+
+      <!-- RESOLUTION SELECTOR — CONTROLS THE OUTPUT RESOLUTION -->
+      <div class="quality-selector" role="group" aria-label="Output resolution">
+        <div class="selector-header">
+          <span class="quality-label">Max Resolution</span>
+          <span class="quality-note" id="resNote">Keep original image dimensions</span>
+        </div>
+        <div class="btn-group" role="radiogroup" aria-label="Output resolution">
+          <button class="btn btn-small" data-res="1080p" role="radio" aria-checked="false" tabindex="-1">1080p</button>
+          <button class="btn btn-small" data-res="1440p" role="radio" aria-checked="false" tabindex="-1">2K</button>
+          <button class="btn btn-small" data-res="2160p" role="radio" aria-checked="false" tabindex="-1">4K</button>
+          <button class="btn btn-small active" data-res="original" role="radio" aria-checked="true" tabindex="0">Original</button>
+        </div>
+      </div>
+    </div>
+
+    <section class="result-area" id="resultArea" hidden aria-label="Background removal result">
+      <div class="result-header">
+        <h2 class="result-title">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          Result
+        </h2>
+        <div class="result-actions">
+          <button class="btn btn-outline" id="newImageBtn" aria-label="Upload a new image">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+            <span class="btn-label">New Image</span>
+          </button>
+          <button class="btn btn-primary" id="downloadBtn" aria-label="Download the result as PNG">
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" aria-hidden="true"><path d="M21 15v4a2 2 0 01-2 2H5a2 2 0 01-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>
+            <span class="btn-label">Download PNG</span>
+          </button>
+        </div>
+      </div>
+
+      <div class="comparison">
+        <div class="comparison-col">
+          <p class="comparison-label">Original <span class="dim" id="origDim"></span></p>
+          <div class="image-box">
+            <img id="originalPreview" alt="Original uploaded image" />
+          </div>
+        </div>
+        <div class="comparison-divider" role="separator" aria-hidden="true"></div>
+        <div class="comparison-col">
+          <p class="comparison-label">Background Removed <span class="dim" id="outDim"></span></p>
+          <div class="image-box image-box-result" id="resultBox">
+            <canvas id="resultCanvas" aria-label="Image with background removed"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <div class="edit-bar">
+        <div class="edit-bar-header" id="editLabel">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#999" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 19l7-7 3 3-7 7-3-3z"/><path d="M18 13l-1.5-7.5L2 2l3.5 14.5L13 18l5-5z"/><path d="M2 2l7.586 7.586"/><circle cx="11" cy="11" r="2"/></svg>
+          Fine-Tune
+        </div>
+        <div class="edit-controls" role="group" aria-labelledby="editLabel">
+          <div class="edit-control">
+            <label for="brushSize">Brush</label>
+            <input type="range" id="brushSize" min="5" max="80" value="20" aria-label="Brush size in pixels" />
+            <span class="range-val" id="brushSizeVal" aria-live="polite">20px</span>
+          </div>
+          <div class="edit-control">
+            <span class="edit-label" id="modeLabel">Mode</span>
+            <div class="btn-group" role="radiogroup" aria-labelledby="modeLabel">
+              <button class="btn btn-small active" id="modeRestore" role="radio" aria-checked="true" tabindex="0">Restore</button>
+              <button class="btn btn-small" id="modeErase" role="radio" aria-checked="false" tabindex="-1">Erase</button>
+            </div>
+          </div>
+          <button class="btn btn-small btn-ghost" id="resetEditsBtn" aria-label="Reset all edits">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="1 4 1 10 7 10"/><path d="M3.51 15a9 9 0 102.13-9.36L1 10"/></svg>
+            Reset
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <section class="how-section" id="how-it-works">
+      <h2 class="section-title">How It Works</h2>
+      <div class="steps">
+        <div class="step">
+          <div class="step-num" aria-hidden="true">1</div>
+          <h3 class="step-title">Upload</h3>
+          <p class="step-text">Drop your image or click to browse</p>
+        </div>
+        <div class="step-connector" aria-hidden="true"></div>
+        <div class="step">
+          <div class="step-num" aria-hidden="true">2</div>
+          <h3 class="step-title">AI Processes</h3>
+          <p class="step-text">Neural network detects foreground in-browser</p>
+        </div>
+        <div class="step-connector" aria-hidden="true"></div>
+        <div class="step">
+          <div class="step-num" aria-hidden="true">3</div>
+          <h3 class="step-title">Download</h3>
+          <p class="step-text">Get your transparent PNG instantly</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="features" id="features">
+      <h2 class="section-title">Why Use RemoveBG?</h2>
+      <div class="features-grid">
+        <article class="feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" stroke-width="2" stroke-linecap="round" aria-hidden="true"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+          <h3>Private</h3>
+          <p>All processing is done in your browser. Zero uploads to any server.</p>
+        </article>
+        <article class="feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" stroke-width="2" stroke-linecap="round" aria-hidden="true"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+          <h3>Fast</h3>
+          <p>AI runs locally with hardware acceleration.</p>
+        </article>
+        <article class="feature">
+          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#6c5ce7" stroke-width="2" stroke-linecap="round" aria-hidden="true"><polyline points="20 6 9 17 4 12"/></svg>
+          <h3>Unlimited</h3>
+          <p>No credits, no watermarks, no file limits.</p>
+        </article>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer" role="contentinfo">
+    <p>Made by <strong>Nexus</strong> (Beginner) &mdash; Hosted locally</p>
+  </footer>
+
+</body>
+</html>
